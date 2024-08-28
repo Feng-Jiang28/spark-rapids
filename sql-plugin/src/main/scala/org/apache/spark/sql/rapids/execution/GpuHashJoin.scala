@@ -21,7 +21,7 @@ import com.nvidia.spark.rapids._
 import com.nvidia.spark.rapids.Arm.{closeOnExcept, withResource}
 import com.nvidia.spark.rapids.RapidsPluginImplicits.AutoCloseableProducingSeq
 import com.nvidia.spark.rapids.RmmRapidsRetryIterator.{withRestoreOnRetry, withRetryNoSplit}
-import com.nvidia.spark.rapids.jni.GpuOOM
+import com.nvidia.spark.rapids.jni.{BucketChainHashJoin, GpuOOM}
 import com.nvidia.spark.rapids.shims.ShimBinaryExecNode
 
 import org.apache.spark.sql.catalyst.expressions.{Attribute, AttributeReference, Expression, NamedExpression}
@@ -479,7 +479,13 @@ class HashJoinIterator(
             } else {
               rightKeys.innerDistinctJoinGatherMaps(leftKeys, compareNullsEqual).reverse
             }
-          case _: InnerLike => leftKeys.innerJoinGatherMaps(rightKeys, compareNullsEqual)
+          case _: InnerLike =>
+            if(leftKeys.getNumberOfColumns == 1 && rightKeys.getNumberOfColumns == 1
+            && leftKeys.getColumn(0).getType == DType.INT32 && rightKeys.getColumn(0).getType == DType.INT32 ){
+              BucketChainHashJoin.innerJoinGatherMaps(leftKeys, rightKeys, compareNullsEqual);
+            } else {
+              leftKeys.innerJoinGatherMaps(rightKeys, compareNullsEqual)
+            }
           case LeftSemi => Array(leftKeys.leftSemiJoinGatherMap(rightKeys, compareNullsEqual))
           case LeftAnti => Array(leftKeys.leftAntiJoinGatherMap(rightKeys, compareNullsEqual))
           case _ =>
