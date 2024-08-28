@@ -475,8 +475,15 @@ class HashJoinIterator(
             rightKeys.leftJoinGatherMaps(leftKeys, compareNullsEqual).reverse
           case _: InnerLike if isDistinctJoin =>
             if (buildSide == GpuBuildRight) {
-              leftKeys.innerDistinctJoinGatherMaps(rightKeys, compareNullsEqual)
+              if(leftKeys.getNumberOfColumns == 1 && rightKeys.getNumberOfColumns == 1
+                && leftKeys.getColumn(0).getType == DType.INT32 && rightKeys.getColumn(0).getType == DType.INT32 ){
+                BucketChainHashJoin.innerJoinGatherMaps(leftKeys, rightKeys, compareNullsEqual);
+              } else {
+                print("buildSide != GpuBuildRight. wrong")
+                leftKeys.innerDistinctJoinGatherMaps(rightKeys, compareNullsEqual)
+              }
             } else {
+              print("buildSide == GpuBuildRight. wrong")
               rightKeys.innerDistinctJoinGatherMaps(leftKeys, compareNullsEqual).reverse
             }
           case _: InnerLike =>
