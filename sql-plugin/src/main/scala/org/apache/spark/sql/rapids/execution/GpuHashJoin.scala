@@ -470,6 +470,7 @@ class HashJoinIterator(
       rightData: LazySpillableColumnarBatch): Option[JoinGatherer] = {
     withResource(new NvtxWithMetrics("hash join gather map", NvtxColor.ORANGE, joinTime)) { _ =>
       // hack to work around unique_join not handling empty tables
+      print("here to debug")
       if (joinType.isInstanceOf[InnerLike] &&
         (leftKeys.getRowCount == 0 || rightKeys.getRowCount == 0)) {
         None
