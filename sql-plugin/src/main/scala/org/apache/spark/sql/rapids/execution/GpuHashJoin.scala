@@ -488,7 +488,7 @@ class HashJoinIterator(
             if (buildSide == GpuBuildRight) {
               if(leftKeys.getNumberOfColumns == 1 && rightKeys.getNumberOfColumns == 1
                 && leftKeys.getColumn(0).getType == DType.INT32 && rightKeys.getColumn(0).getType == DType.INT32 ){
-                print("call to my new kernel\n")
+                print("call to my new kernel1\n")
                 BucketChainHashJoin.innerJoinGatherMaps(leftKeys, rightKeys, compareNullsEqual);
               } else {
                 print("buildSide != GpuBuildRight. wrong \n")
@@ -505,6 +505,7 @@ class HashJoinIterator(
           case _: InnerLike =>
             if(leftKeys.getNumberOfColumns == 1 && rightKeys.getNumberOfColumns == 1
             && leftKeys.getColumn(0).getType == DType.INT32 && rightKeys.getColumn(0).getType == DType.INT32 ){
+              print("call to my new kernel2\n")
               BucketChainHashJoin.innerJoinGatherMaps(leftKeys, rightKeys, compareNullsEqual);
             } else {
               leftKeys.innerJoinGatherMaps(rightKeys, compareNullsEqual)
