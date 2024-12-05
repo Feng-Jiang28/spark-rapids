@@ -488,9 +488,14 @@ class HashJoinIterator(
             if (buildSide == GpuBuildRight) {
               if(leftKeys.getNumberOfColumns == 1 && rightKeys.getNumberOfColumns == 1
                 && leftKeys.getColumn(0).getType == DType.INT32 && rightKeys.getColumn(0).getType == DType.INT32 ){
+                print("call to my new kernel\n")
                 BucketChainHashJoin.innerJoinGatherMaps(leftKeys, rightKeys, compareNullsEqual);
               } else {
-                print("buildSide != GpuBuildRight. wrong")
+                print("buildSide != GpuBuildRight. wrong \n")
+                print("leftKeys.getNumberOfColumns " + leftKeys.getNumberOfColumns + "\n")
+                print("rightKeys.getNumberOfColumns " + rightKeys.getNumberOfColumns + "\n")
+                print("rightKeys.getColumn(0).getType " + leftKeys.getColumn(0).getType + "\n")
+                print("rightKeys.getColumn(0).getType " + rightKeys.getColumn(0).getType + "\n")
                 leftKeys.innerDistinctJoinGatherMaps(rightKeys, compareNullsEqual)
               }
             } else {
